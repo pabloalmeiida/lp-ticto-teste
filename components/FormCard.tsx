@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Suspense } from "react";
 import YayFormsEmbed from "./YayFormsEmbed";
 
 export default function FormCard() {
@@ -15,11 +14,7 @@ export default function FormCard() {
         Crie sua conta e comece a vender hoje mesmo
       </h2>
       <div className="mt-9">
-        <Suspense
-          fallback={<div className="h-[472px] rounded-3xl bg-[#f2f2f2]" aria-hidden />}
-        >
-          <YayFormsEmbed />
-        </Suspense>
+        <YayFormsEmbed />
       </div>
       <div className="mt-9 flex items-center gap-3.5">
         <Image

@@ -9,15 +9,12 @@ parâmetros UTM/SCK/SRC.
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha NEXT_PUBLIC_YAYFORMS_FORM_URL
 npm run dev
 ```
 
-A página fica disponível em `http://localhost:3000`.
-
-| Variável | Descrição |
-|---|---|
-| `NEXT_PUBLIC_YAYFORMS_FORM_URL` | URL pública do formulário YayForms (ex.: `https://form.yayforms.link/abc123`) |
+A página fica disponível em `http://localhost:3000`. Nenhuma variável de ambiente é
+obrigatória — o ID do widget YayForms tem fallback no código e pode ser sobrescrito
+via `NEXT_PUBLIC_YAYFORMS_WIDGET_ID` (ver `.env.example`).
 
 URL de teste com parâmetros de rastreamento:
 
@@ -29,8 +26,8 @@ http://localhost:3000/?utm_source=teste&utm_medium=email&utm_campaign=avaliacao&
 
 - **Next.js 16 (App Router) + TypeScript** — stack obrigatória do teste; App Router por ser o padrão atual.
 - **Tailwind CSS v4** — citado nos critérios de avaliação; os tokens do Figma (cores, fontes) viram tema em `app/globals.css` e os valores exatos de espaçamento/tipografia entram como valores arbitrários, extraídos do JSON do design via API REST do Figma.
-- **Formulário YayForms embeddado inline** dentro do card branco do layout (no lugar dos campos desenhados no Figma). O teste permite que o formulário use o estilo padrão do YayForms; mantive o "casco" do card (título, selo "cadastro 100% gratuito" e "Seus dados estão seguros") fiel ao design.
-- **Rastreamento UTM/SCK/SRC** (`components/YayFormsEmbed.tsx`): os 7 parâmetros (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `sck`, `src`) são lidos da URL da página com `useSearchParams` e repassados na URL do iframe do formulário — equivalente aos "campos hidden" previstos no enunciado (alternativa ao `data-yf-transitive-search-params`, que se aplica ao snippet oficial de embed). O YayForms captura esses parâmetros e os envia ao Datacrazy junto com o lead.
+- **Formulário YayForms embeddado inline (modo Standard)** dentro do card branco do layout (no lugar dos campos desenhados no Figma), usando o snippet oficial de embed. O teste permite que o formulário use o estilo padrão do YayForms; mantive o "casco" do card (título, selo "cadastro 100% gratuito" e "Seus dados estão seguros") fiel ao design.
+- **Rastreamento UTM/SCK/SRC** (`components/YayFormsEmbed.tsx`): os 7 parâmetros (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `sck`, `src`) são repassados ao formulário via atributo oficial **`data-yf-transitive-search-params`**, exatamente como previsto no enunciado. O script de embed do YayForms lê os valores da URL da página, injeta-os como campos hidden no formulário e os envia ao Datacrazy junto com o lead.
 - **Imagens e ícones** exportados diretamente do Figma (PNG para fotos/logos bitmap, SVG para ícones e logos vetoriais) via API REST.
 
 ### Fonte substituta (Tomato Grotesk)

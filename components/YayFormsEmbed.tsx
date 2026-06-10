@@ -1,50 +1,27 @@
-"use client";
+import Script from "next/script";
 
-import { useSearchParams } from "next/navigation";
+const WIDGET_ID = process.env.NEXT_PUBLIC_YAYFORMS_WIDGET_ID ?? "Be9VvKj";
 
 /**
- * Parâmetros de rastreamento repassados da URL da página para o formulário
- * (requisito 4 do teste — campos hidden equivalentes ao
- * data-yf-transitive-search-params).
+ * Parâmetros repassados da URL da página para o formulário (requisito 4 do
+ * teste), via atributo oficial do YayForms. O script de embed lê os valores
+ * da URL e os injeta como campos hidden no formulário.
  */
-const TRACKED_PARAMS = [
-  "utm_source",
-  "utm_medium",
-  "utm_campaign",
-  "utm_content",
-  "utm_term",
-  "sck",
-  "src",
-] as const;
-
-const FORM_URL = process.env.NEXT_PUBLIC_YAYFORMS_FORM_URL;
+const TRANSITIVE_PARAMS =
+  "utm_source,utm_medium,utm_campaign,utm_content,utm_term,src,sck";
 
 export default function YayFormsEmbed() {
-  const searchParams = useSearchParams();
-
-  if (!FORM_URL) {
-    return (
-      <div className="flex h-[472px] items-center justify-center rounded-3xl bg-[#f2f2f2] p-6 text-center text-sm text-muted">
-        Defina NEXT_PUBLIC_YAYFORMS_FORM_URL no .env.local para carregar o
-        formulário.
-      </div>
-    );
-  }
-
-  const url = new URL(FORM_URL);
-  for (const param of TRACKED_PARAMS) {
-    const value = searchParams.get(param);
-    if (value !== null) {
-      url.searchParams.set(param, value);
-    }
-  }
-
   return (
-    <iframe
-      src={url.toString()}
-      title="Formulário de cadastro"
-      className="h-[472px] w-full border-0"
-      allow="clipboard-write"
-    />
+    <div className="h-[472px]">
+      <div
+        data-yf-widget={WIDGET_ID}
+        data-yf-transitive-search-params={TRANSITIVE_PARAMS}
+        style={{ width: "100%", height: "100%" }}
+      />
+      <Script
+        src="https://embed.yayforms.link/next/embed.js"
+        strategy="afterInteractive"
+      />
+    </div>
   );
 }
