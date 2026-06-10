@@ -5,6 +5,8 @@ Landing page de captura do evento **Ebulição**, reproduzida pixel perfect a pa
 com formulário YayForms embeddado, integração com o CRM Datacrazy e rastreamento de
 parâmetros UTM/SCK/SRC.
 
+**🔗 Deploy:** [lp-ticto-teste.vercel.app](https://lp-ticto-teste.vercel.app/)
+
 ## Como rodar localmente
 
 ```bash
@@ -19,7 +21,7 @@ via `NEXT_PUBLIC_YAYFORMS_WIDGET_ID` (ver `.env.example`).
 URL de teste com parâmetros de rastreamento:
 
 ```
-http://localhost:3000/?utm_source=teste&utm_medium=email&utm_campaign=avaliacao&utm_content=criativo1&utm_term=palavra&sck=123&src=linkedin
+https://lp-ticto-teste.vercel.app/?utm_source=teste&utm_medium=email&utm_campaign=avaliacao&utm_content=criativo1&utm_term=palavra&sck=123&src=linkedin
 ```
 
 ## Stack e decisões técnicas
