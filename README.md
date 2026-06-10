@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LP Ebulição — Teste Técnico Ticto (Gerente de Automações)
 
-## Getting Started
+Landing page de captura do evento **Ebulição**, reproduzida pixel perfect a partir do Figma
+[LPs 2025 — node 8304-51](https://www.figma.com/design/KhdDl0T5xLwOjUJHB1g0SA/LPs-2025?node-id=8304-51),
+com formulário YayForms embeddado, integração com o CRM Datacrazy e rastreamento de
+parâmetros UTM/SCK/SRC.
 
-First, run the development server:
+## Como rodar localmente
 
 ```bash
+npm install
+cp .env.example .env.local   # preencha NEXT_PUBLIC_YAYFORMS_FORM_URL
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A página fica disponível em `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variável | Descrição |
+|---|---|
+| `NEXT_PUBLIC_YAYFORMS_FORM_URL` | URL pública do formulário YayForms (ex.: `https://form.yayforms.link/abc123`) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+URL de teste com parâmetros de rastreamento:
 
-## Learn More
+```
+http://localhost:3000/?utm_source=teste&utm_medium=email&utm_campaign=avaliacao&utm_content=criativo1&utm_term=palavra&sck=123&src=linkedin
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Stack e decisões técnicas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js 16 (App Router) + TypeScript** — stack obrigatória do teste; App Router por ser o padrão atual.
+- **Tailwind CSS v4** — citado nos critérios de avaliação; os tokens do Figma (cores, fontes) viram tema em `app/globals.css` e os valores exatos de espaçamento/tipografia entram como valores arbitrários, extraídos do JSON do design via API REST do Figma.
+- **Formulário YayForms embeddado inline** dentro do card branco do layout (no lugar dos campos desenhados no Figma). O teste permite que o formulário use o estilo padrão do YayForms; mantive o "casco" do card (título, selo "cadastro 100% gratuito" e "Seus dados estão seguros") fiel ao design.
+- **Rastreamento UTM/SCK/SRC** (`components/YayFormsEmbed.tsx`): os 7 parâmetros (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `sck`, `src`) são lidos da URL da página com `useSearchParams` e repassados na URL do iframe do formulário — equivalente aos "campos hidden" previstos no enunciado (alternativa ao `data-yf-transitive-search-params`, que se aplica ao snippet oficial de embed). O YayForms captura esses parâmetros e os envia ao Datacrazy junto com o lead.
+- **Imagens e ícones** exportados diretamente do Figma (PNG para fotos/logos bitmap, SVG para ícones e logos vetoriais) via API REST.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Fonte substituta (Tomato Grotesk)
 
-## Deploy on Vercel
+O design usa **Tomato Grotesk** (títulos e UI), uma fonte comercial sem licença gratuita.
+Substituí por **Inter** (Google Fonts, via `next/font`) — escolha apoiada pelo próprio arquivo
+do Figma, cujas anotações de inspeção indicam "Inter Fallback" como fallback do design.
+**Space Grotesk**, usada nos textos corridos, é gratuita e foi mantida exata.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Inconsistências encontradas (e decisões tomadas)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Enunciado × Figma**: o contexto do teste cita a LP do evento **Outlier Experience**, mas o
+   node `8304-51` indicado é a LP de captura da Ticto no evento **Ebulição** (by Rafa Prado).
+   A página real do Outlier (`lp3.outlierxp.com.br`) é uma página de vendas de ingressos, sem
+   formulário de captura. Como o critério de avaliação é a comparação lado a lado com o Figma,
+   implementei **fielmente o node indicado, copy incluída**.
+2. **Anotações de QA dentro do próprio Figma**: a página "Ebulição" contém notas de revisão
+   ("No figma está bold", "Fonte errada no título", "Hat com fonte e estilo errado"), indicando
+   que o design tem divergências conhecidas da produção. Segui o que está desenhado no frame.
+3. **Divergências entre desktop e mobile no Figma** — resolvidas com swap responsivo para manter
+   fidelidade a cada breakpoint:
+   - Regra 1: "formulário **ao lado**" (desktop) × "formulário **abaixo**" (mobile);
+   - Menu do footer: "Blog" (desktop) × "Perguntas frequentes" (mobile);
+   - CTA do footer: "Crie sua conta" (desktop) × "Crie agora sua conta" (mobile);
+   - Subtítulo do hero ("Milhares de empresários...") existe apenas no desktop.
+4. **Camadas ocultas no Figma** (grupo "depoimento" com Lorem Ipsum e as abas "Para você /
+   Para empresa" do formulário) estão com `visible: false` no design e **não** foram implementadas.
+5. **Links institucionais** (menu, redes sociais, lojas de aplicativo, Políticas e Termos) não têm
+   destino especificado no design; apontam para `ticto.com.br`.
+
+## Dificuldades e como foram resolvidas
+
+- **Acesso ao Figma**: o servidor MCP oficial do Figma limita contas Starter a 6 chamadas/mês e
+  exige que o arquivo pertença ao plano do usuário — inviável para um arquivo view-only de
+  terceiros. Solução: **API REST do Figma** com personal access token, extraindo o JSON completo
+  dos frames (medidas, cores, tipografia e efeitos exatos) e exportando os assets em PNG/SVG.
+- **Verificação pixel perfect**: screenshots automatizados (Playwright + Chrome) em 1440px e
+  390px comparados lado a lado com os PNGs exportados do Figma em 2x.
+
+## Estrutura
+
+```
+app/
+  layout.tsx        # fontes (next/font) e metadata
+  page.tsx          # composição da página
+  globals.css       # tema Tailwind com tokens do Figma
+components/
+  Header.tsx        # logos Ticto Master Partner | Ebulição
+  Hero.tsx          # badge + título + subtítulo
+  PrizeCard.tsx     # card do iPhone 16 Pro
+  Rules.tsx         # regras do sorteio
+  FormCard.tsx      # card branco com o embed do YayForms
+  YayFormsEmbed.tsx # iframe + repasse dos parâmetros de rastreamento
+  Footer.tsx        # footer completo (responsivo com reordenação)
+  BackgroundGlow.tsx# elipses desfocadas do fundo
+public/assets/      # imagens e ícones exportados do Figma
+```
